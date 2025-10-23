@@ -9,6 +9,11 @@ router.post('/request', async (req, res) => {
   const { method, url, headers, body, params } = req.body;
   
   try {
+    // Validate inputs
+    if (!method || !url) {
+      return res.status(400).json({ error: 'Method and URL are required' });
+    }
+
     const startTime = Date.now();
     
     // Prepare axios config
@@ -17,7 +22,8 @@ router.post('/request', async (req, res) => {
       url,
       headers: headers || {},
       params: params || {},
-      validateStatus: () => true // Accept any status code
+      validateStatus: () => true,
+      timeout: 30000 // 30 second timeout
     };
 
     // Add body for POST, PUT, PATCH
@@ -52,9 +58,11 @@ router.post('/request', async (req, res) => {
     });
 
   } catch (error) {
+    console.error('Error in /request:', error); // Add logging
     res.status(500).json({
       error: error.message,
-      details: error.response?.data || 'Network error'
+      details: error.response?.data || 'Network error',
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 });

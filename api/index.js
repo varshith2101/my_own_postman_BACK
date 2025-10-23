@@ -9,16 +9,39 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log('MongoDB connected'))
-.catch(err => console.log('MongoDB connection error:', err));
+// MongoDB Connection with better error handling
+let isConnected = false;
+
+const connectDB = async () => {
+  if (isConnected) {
+    return;
+  }
+  
+  try {
+    await mongoose.connect(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    isConnected = true;
+    console.log('MongoDB connected');
+  } catch (err) {
+    console.error('MongoDB connection error:', err);
+    throw err;
+  }
+};
+
+// Connect to DB before handling requests
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    res.status(500).json({ error: 'Database connection failed' });
+  }
+});
 
 // Routes
-const routes = require('../routes/routes'); // path changed since now in /api
+const routes = require('../routes/routes');
 app.use('/api', routes);
 
 // Health check
@@ -26,5 +49,4 @@ app.get('/', (req, res) => {
   res.json({ message: 'Postman Clone API is running' });
 });
 
-// Export instead of listen
 module.exports = app;
