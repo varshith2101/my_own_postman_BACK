@@ -52,3 +52,7 @@ app.use('/api', routes);
 app.get('/', (req, res) => {
   res.json({ message: 'Postman Clone API is running' });
 });
+
+app.listen(6500, () => {
+  console.log(`Server running on port 6500`);
+});
