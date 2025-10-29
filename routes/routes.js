@@ -1,8 +1,10 @@
-const express = require('express');
-const router = express.Router();
-const axios = require('axios');
-const Request = require('../models/Request');
-const Collection = require('../models/collection');
+import express from 'express';
+import { Router } from 'express';
+import axios from 'axios';
+import Request from '../models/request.js';
+import Collection from '../models/collection.js';
+
+const router = Router();
 
 // Make API Request
 router.post('/request', async (req, res) => {
@@ -69,6 +71,7 @@ router.post('/request', async (req, res) => {
 
 // Get Request History
 router.get('/history', async (req, res) => {
+  console.log("hiiiiiiiiii")
   try {
     const history = await Request.find().sort({ createdAt: -1 }).limit(50);
     res.json(history);
@@ -139,4 +142,4 @@ router.delete('/collections/:id', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;
