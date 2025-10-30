@@ -6,9 +6,15 @@ import router from "../routes/routes.js";
 
 
 dotenv.config();
+const corsConfig = {
+  origin: true,
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+};
 
 const app = express();
-app.use(cors());
+app.options("", cors(corsConfig));
+app.use(cors(corsConfig));
 app.use(express.json());
 app.use ("/api", router);
 const mongoURI = process.env.MONGO_URI;
