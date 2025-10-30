@@ -1,8 +1,8 @@
 import express from 'express';
 import { Router } from 'express';
 import axios from 'axios';
-import Request from '../models/request.js';
-import Collection from '../models/collection.js';
+import Request from '../models/Request.js';
+import Collection from '../models/Collection.js';
 
 const router = Router();
 
@@ -33,7 +33,7 @@ router.post('/request', async (req, res) => {
       config.data = body;
     }
 
-    const response = await axios(config);
+    const response = await axios(config); // REQUEST IS SENT HERE
     const endTime = Date.now();
     const responseTime = endTime - startTime;
 

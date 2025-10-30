@@ -1,58 +1,28 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import routes from '../routes/routes.js';
+import express from "express";
+import mongoose from "mongoose";
+import cors from "cors";
+import dotenv from "dotenv";
+import router from "../routes/routes.js";
+
 
 dotenv.config();
 
 const app = express();
-
-// Middleware
-
-app.use(express.json());
 app.use(cors());
+app.use(express.json());
+app.use ("/api", router);
+// ✅ Replace with your own
+const mongoURI = process.env.MONGO_URI || "mongodb+srv://varsdevonline_db_user:JPsK3NjEFFjaMNCk@postman.pspwc1w.mongodb.net/?appName=postman";
 
-// MongoDB Connection with better error handling
-let isConnected = false;
+mongoose.connect(mongoURI)
+  .then(() => console.log("✅ MongoDB Connected"))
+  .catch(err => console.error("❌ MongoDB Connection Error:", err));
 
-const connectDB = async () => {
-  if (isConnected) {
-    return;
-  }
-  
-  try {
-    await mongoose.connect(process.env.MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    isConnected = true;
-    console.log('MongoDB connected');
-  } catch (err) {
-    console.error('MongoDB connection error:', err);
-    throw err;
-  }
-};
-
-// Connect to DB before handling requests
-app.use(async (req, res, next) => {
-  try {
-    await connectDB();
-    next();
-  } catch (error) {
-    res.status(500).json({ error: 'Database connection failed' });
-  }
+app.get("/", (req, res) => {
+  res.send("Server is running ✅");
 });
 
-// Routes
+// const PORT = process.env.PORT || 6500;
+// app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
 
-app.use('/api', routes);
-
-// Health check
-app.get('/', (req, res) => {
-  res.json({ message: 'Postman Clone API is running' });
-});
-
-app.listen(6500, () => {
-  console.log(`Server running on port 6500`);
-});
+export default app;
