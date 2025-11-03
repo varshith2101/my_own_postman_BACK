@@ -4,8 +4,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import router from "../routes/routes.js";
 
-
 dotenv.config();
+
 const corsConfig = {
   origin: true,
   credentials: true,
@@ -16,17 +16,44 @@ const app = express();
 app.options("", cors(corsConfig));
 app.use(cors(corsConfig));
 app.use(express.json());
-app.use ("/api", router);
-const mongoURI = process.env.MONGODB_URI ;
-mongoose.connect(mongoURI)
-  .then(() => console.log("✅ MongoDB Connected"))
-  .catch(err => console.error("❌ MongoDB Connection Error:", err));
+
+// MongoDB connection with caching for serverless
+let cachedDb = null;
+
+const connectDB = async () => {
+  if (cachedDb) {
+    return cachedDb;
+  }
+
+  const mongoURI = process.env.MONGODB_URI;
+  if (!mongoURI) {
+    throw new Error("MONGODB_URI is not defined in environment variables");
+  }
+
+  try {
+    const conn = await mongoose.connect(mongoURI, {
+      serverSelectionTimeoutMS: 5000,
+    });
+    cachedDb = conn;
+    console.log("✅ MongoDB Connected");
+    return conn;
+  } catch (err) {
+    console.error("❌ MongoDB Connection Error:", err);
+    throw err;
+  }
+};
+
+// Connect to DB on startup
+connectDB().catch(console.error);
 
 app.get("/", (req, res) => {
   res.send("Server is running ✅");
 });
 
-// const PORT = process.env.PORT || 6500;
-// app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.use("/api", router);
 
-export default app;
+// Export handler for Vercel
+export default async (req, res) => {
+  await connectDB();
+  return app(req, res);
+};
