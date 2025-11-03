@@ -46,7 +46,7 @@ const connectDB = async () => {
 // Connect to DB on startup
 connectDB().catch(console.error);
 
-app.get("/", (req, res) => {
+app.get("/", (_req, res) => {
   res.send("Server is running ✅");
 });
 
