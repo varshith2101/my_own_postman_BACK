@@ -17,7 +17,7 @@ app.options("", cors(corsConfig));
 app.use(cors(corsConfig));
 app.use(express.json());
 app.use ("/api", router);
-const mongoURI = process.env.MONGO_URI;
+const mongoURI = process.env.MONGODB_URI ;
 mongoose.connect(mongoURI)
   .then(() => console.log("✅ MongoDB Connected"))
   .catch(err => console.error("❌ MongoDB Connection Error:", err));
