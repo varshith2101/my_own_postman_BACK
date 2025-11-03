@@ -42,6 +42,7 @@ const connectDB = async () => {
     throw err;
   }
 };
+app.get("/favicon.ico", (req, res) => res.status(204).end());
 
 app.get("/", (_req, res) => {
   res.send("Server is running ✅");
