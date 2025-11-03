@@ -2,7 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
-import router from "../routes/routes.js";
+import router from "./routes/routes.js";
 
 dotenv.config();
 
@@ -52,6 +52,19 @@ app.use("/api", router);
 
 // Export handler for Vercel
 export default async (req, res) => {
-  await connectDB();
-  return app(req, res);
+  try {
+    await connectDB();
+    return app(req, res);
+  } catch (error) {
+    console.error("Handler error:", error);
+    return res.status(500).json({ error: "Internal server error", details: error.message });
+  }
 };
+
+// For local development
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+  });
+}
